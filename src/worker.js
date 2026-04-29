@@ -1,3 +1,8 @@
+const BACKENDS = {
+  "/telegram": "https://api.telegram.org",
+  "/anthropic": "https://api.anthropic.com",
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -8,11 +13,23 @@ export default {
     }
 
     url.searchParams.delete("auth");
-    const targetUrl = "https://api.telegram.org" + url.pathname + url.search;
+
+    const prefix = Object.keys(BACKENDS).find((p) => url.pathname === p || url.pathname.startsWith(p + "/"));
+    if (!prefix) {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    const backend = BACKENDS[prefix];
+    const path = url.pathname.slice(prefix.length) || "/";
+    const targetUrl = backend + path + url.search;
+
+    const headers = new Headers(request.headers);
+    headers.delete("Host");
+    headers.delete("X-Auth-Token");
 
     const response = await fetch(targetUrl, {
       method: request.method,
-      headers: request.headers,
+      headers,
       body: request.method !== "GET" ? request.body : undefined,
     });
 
