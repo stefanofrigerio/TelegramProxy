@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev"
+    "dev": "wrangler dev",
+    "claude": "./launch-claude.sh"
+  },
+  "dependencies": {
+    "ws": "^8"
   },
   "devDependencies": {
     "wrangler": "^4"
